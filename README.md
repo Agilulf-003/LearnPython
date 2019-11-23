@@ -1,2 +1,2 @@
 # LearnPython
-##use some small examples
+## use some small examples
