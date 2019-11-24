@@ -27,7 +27,12 @@ def main():
         player2win = 0
         winpattern= [{1,2,3},{4,5,6},{7,8,9},{1,4,7},{2,5,8},{3,6,9},{1,5,9},{3,5,7}]
         begin = False
-        turn = 'x'
+        os.system('cls')
+        choose = input('先 ‘1’ or 后 ‘2’ ？:')
+        if choose == '1':
+            turn = 'x'
+        else:
+            turn = 'o'
         counter = 0
         os.system('cls')
         print_board(curr_board)
@@ -43,7 +48,10 @@ def main():
                 player1_set.add(move)
             else:
                 from random import choice
-                move = choice(list(curr_set))
+                if 5 in curr_set:
+                    move = 5
+                else:
+                    move = choice(list(curr_set))
                 curr_board[move] = turn
                 curr_set.remove(move)
                 player2_set.add(move)
