@@ -33,7 +33,6 @@ def main():
             turn = 'x'
         else:
             turn = 'o'
-        counter = 0
         os.system('cls')
         print_board(curr_board)
         while curr_set and player1win == 0 and player2win == 0:
