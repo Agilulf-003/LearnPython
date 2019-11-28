@@ -125,9 +125,12 @@ class Pos(QWidget):#Qwidget的子类
 
         self.clicked.emit()
 
-    def mouseReleaseEvent(self, e):
-
-        if (e.button() == Qt.RightButton and not self.is_revealed):
+    def mouseReleaseEvent(self, e):#This event handler, for event event , can be reimplemented in a subclass to receive mouse release events for the widget.
+       # mouseReleaseEvent(arg__1),arg__1=QMouseEvent
+#class QMouseEvent(type, localPos, button, buttons, modifiers)
+        if (e.button() == Qt.RightButton and not self.is_revealed):#右键
+        #QMouseEvent.button
+           # Returns the button that caused the event.Note that the returned value is always NoButton for mouse move events.
             self.flag()
 
         elif (e.button() == Qt.LeftButton):
@@ -174,16 +177,21 @@ class MainWindow(QMainWindow):#窗口显示
         self.button.setFlat(True)
 
         self.button.pressed.connect(self.button_pressed)
-
+#Qt provides four classes for handling image data: QImage , QPixmap , QBitmap and QPicture .
+#QImage is designed and optimized for I/O, and for direct pixel access and manipulation, while QPixmap is designed and optimized for showing images on screen. 
+#QBitmap is only a convenience class that inherits QPixmap , ensuring a depth of 1. The isQBitmap() function returns true if a QPixmap object is really a bitmap, 
+#otherwise returns false . Finally, the QPicture class is a paint device that records and replays QPainter commands.
         l = QLabel()
         l.setPixmap(QPixmap.fromImage(IMG_BOMB))
+        #A QPixmap object can be converted into a QImage using the toImage() function. Likewise, a QImage can be converted into a QPixmap using the fromImage() .
+        # If this is too expensive an operation, you can use fromImage() instead.
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         hb.addWidget(l)
 
         hb.addWidget(self.mines)
         hb.addWidget(self.button)
         hb.addWidget(self.clock)
-
+#上面一排
         l = QLabel()
         l.setPixmap(QPixmap.fromImage(IMG_CLOCK))
         l.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -191,11 +199,11 @@ class MainWindow(QMainWindow):#窗口显示
 
         vb = QVBoxLayout()
         vb.addLayout(hb)
-
+#首先增加上面一排
         self.grid = QGridLayout()
         self.grid.setSpacing(5)
 #QGridLayout takes the space made available to it (by its parent layout or by the parentWidget() ), divides it up into rows and columns, and puts each widget it manages into the correct cell.
-        vb.addLayout(self.grid)
+        vb.addLayout(self.grid)#增加网格
         w.setLayout(vb)
         self.setCentralWidget(w)
 
@@ -207,13 +215,14 @@ class MainWindow(QMainWindow):#窗口显示
 
         self.show()
 
-    def init_map(self):
+    def init_map(self):#初始化
         # Add positions to the map
         for x in range(0, self.b_size):
             for y in range(0, self.b_size):
                 w = Pos(x, y)# w 应该是对应小格子
-                self.grid.addWidget(w, y, x)
+                self.grid.addWidget(w, y, x)#增加一个小格子
                 # Connect signal to handle expansion.
+                #?
                 w.clicked.connect(self.trigger_start)
                 w.expandable.connect(self.expand_reveal)
                 w.ohno.connect(self.game_over)
