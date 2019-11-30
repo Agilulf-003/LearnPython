@@ -38,3 +38,10 @@ and make it sound completely sensible.
 ## Other licenses
 
 Icons used in the application are by [Yusuke Kamiyaman](http://p.yusukekamiyamane.com/).
+
+# 
+## UPDATE (19/11/30):
+### The goals of the updated version:
+1. Add a end mode for victory.
+2. Adjust the size of widgets dynamit to fit the mainWindow.
+3. Make the first turn free, and change the distribute of the mine if a mine is hitted in the first turn.
