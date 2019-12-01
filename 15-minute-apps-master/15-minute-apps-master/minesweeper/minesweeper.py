@@ -42,7 +42,7 @@ STATUS_ICONS = {
 
 class Pos(QWidget):#Qwidget的子类
     #Qwidget 是父类，具体的不同的widget是子类
-    expandable = pyqtSignal(int, int)
+    expandable = pyqtSignal(int, int)#不需要放到init里？
     #define new signal pyqtSignal(types[, name[, revision=0[, arguments=[]]]])
     clicked = pyqtSignal()
     ohno = pyqtSignal()
@@ -111,19 +111,20 @@ class Pos(QWidget):#Qwidget的子类
         self.is_flagged = True
         self.update()
 
-        self.clicked.emit()
+        #self.clicked.emit()
 
     def reveal(self):
         self.is_revealed = True
         self.update()
 
-    def click(self):
+    def click(self):#左键点击
         if not self.is_revealed:
             self.reveal()
-            if self.adjacent_n == 0:
+            if self.adjacent_n == 0:#expand 空块周围块
                 self.expandable.emit(self.x, self.y)
-
-        self.clicked.emit()
+            if not self.is_mine:
+                self.clicked.emit()  #emit 发射
+        #将clicke出发条件改到到not self.is_revealed 且 not mine执行之下
 
     def mouseReleaseEvent(self, e):#This event handler, for event event , can be reimplemented in a subclass to receive mouse release events for the widget.
        # mouseReleaseEvent(arg__1),arg__1=QMouseEvent
@@ -137,14 +138,36 @@ class Pos(QWidget):#Qwidget的子类
             self.click()
 
             if self.is_mine:
-                self.ohno.emit()
-
+                self.ohno.emit()  #ohno 信号发射
+#点击操作的对单个widget自己的影响在POS中已经完成，mainWindow中完成对其他模块的影响
 
 class MainWindow(QMainWindow):#窗口显示
+    ohyes=pyqtSignal()
+    #pyqt5信号要定义为类属性，而不是放在 _init_这个方法里面
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+        self.b_size, self.n_mines = LEVELS[1] #n_mines代表等级       
 
-        self.b_size, self.n_mines = LEVELS[0] #n_mines代表等级
+
+        '''
+        mark,建立一个list，用以表示已经翻开了的位置，当已经翻开了的元素个数等于所有非雷块的个数时，发送一个胜利信号
+        list的更新应该与reveal同步.注意到每次点开一个块，伴随着一个clicked.emit. 而 w.clicked.connect(self.trigger_start)
+        所以应该在trigger_start方法上加对revealedlist的处理.或者再增加一个slot处理clicked.考虑到list必须要坐标才能记录。所以改成个数。将revealedlist
+        改成revealedNum.
+        A signal can be connected to many slots and signals. Manysignals can be connected to one slot.
+        If a signal is connected to several slots, the slots areactivated in the same order in which the connections were made,
+        when the signal is emitted.（一个信号连接多个槽，信号发射后，会按照链接顺序执行）。 
+
+        '''
+        '''
+        mark,动态调整POW的大小。发现由于图片大小固定，显示效果很丑，所以改为固定窗口。
+        '''
+        
+
+        self.revealedNum = 0
+        
+        self.ohyes.connect(self.victory)
+
 
         w = QWidget()
         hb = QHBoxLayout()
@@ -188,9 +211,9 @@ class MainWindow(QMainWindow):#窗口显示
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         hb.addWidget(l)
 
-        hb.addWidget(self.mines)
-        hb.addWidget(self.button)
-        hb.addWidget(self.clock)
+        hb.addWidget(self.mines,1)#stretch 参数表示占比
+        hb.addWidget(self.button,1)
+        hb.addWidget(self.clock,1)
 #上面一排
         l = QLabel()
         l.setPixmap(QPixmap.fromImage(IMG_CLOCK))
@@ -214,6 +237,8 @@ class MainWindow(QMainWindow):#窗口显示
         self.update_status(STATUS_READY)
 
         self.show()
+        #禁止拉伸窗口大小，测试发现，此句需要放在self.show之后,
+        self.setFixedSize(self.width(), self.height())
 
     def init_map(self):#初始化
         # Add positions to the map
@@ -225,7 +250,9 @@ class MainWindow(QMainWindow):#窗口显示
                 #?
                 w.clicked.connect(self.trigger_start)
                 w.expandable.connect(self.expand_reveal)
-                w.ohno.connect(self.game_over)
+                w.ohno.connect(self.game_over)#game over
+                w.clicked.connect(self.revealedNum_add)
+ 
 
     def reset_map(self):
         # Clear all mine positions
@@ -233,7 +260,7 @@ class MainWindow(QMainWindow):#窗口显示
             for y in range(0, self.b_size):
                 w = self.grid.itemAtPosition(y, x).widget()
                 w.reset()
-
+        self.revealedNum = 1
         # Add mines to the positions
         positions = []
         while len(positions) < self.n_mines:
@@ -241,7 +268,7 @@ class MainWindow(QMainWindow):#窗口显示
             if (x, y) not in positions:
                 w = self.grid.itemAtPosition(y, x).widget()
                 w.is_mine = True
-                positions.append((x, y))
+                positions.append((x, y))#把x，y增加到mines list
 
         def get_adjacency_n(x, y):
             positions = self.get_surrounding(x, y)#周围的，positions是一个list
@@ -254,7 +281,7 @@ class MainWindow(QMainWindow):#窗口显示
             for y in range(0, self.b_size):
                 w = self.grid.itemAtPosition(y, x).widget()#self.grid = QGridLayout()
                 #itemAtPosition() Returns the layout item that occupies cell (row , column ), or None if the cell is empty.
-                #Returns the associated widget.
+                #Returns the associated widget.ll
                 w.adjacent_n = get_adjacency_n(x, y)
 
         # Place starting marker
@@ -285,8 +312,8 @@ class MainWindow(QMainWindow):#窗口显示
         if self.status == STATUS_PLAYING:
             self.update_status(STATUS_FAILED)
             self.reveal_map()
-
-        elif self.status == STATUS_FAILED:
+        
+        elif self.status == STATUS_FAILED or self.status == STATUS_SUCCESS:
             self.update_status(STATUS_READY)
             self.reset_map()
 
@@ -306,6 +333,7 @@ class MainWindow(QMainWindow):#窗口显示
                     w.click()
 
     def trigger_start(self, *args):
+        #开始计时的信号，原始版本click.emit的作用
         if self.status != STATUS_PLAYING:
             # First click.
             self.update_status(STATUS_PLAYING)
@@ -319,7 +347,19 @@ class MainWindow(QMainWindow):#窗口显示
     def update_timer(self):#根据时间决定计时器运行
         if self.status == STATUS_PLAYING:
             n_secs = int(time.time()) - self._timer_start_nsecs
-            self.clock.setText("%03d" % n_secs)
+            self.clock.setText("%03d" % n_secs) 
+    
+
+    def revealedNum_add(self):
+        if(self.revealedNum < self.b_size*self.b_size-self.n_mines):
+            self.revealedNum += 1
+        else:
+            self.ohyes.emit()
+            
+    def victory(self): #游戏结束时动作
+        self.reveal_map()
+        self.update_status(STATUS_SUCCESS)
+
 
     def game_over(self): #游戏结束时动作
         self.reveal_map()
