@@ -5,10 +5,10 @@ from PyQt5.QtCore import *
 import random
 import time
 
-IMG_BOMB = QImage("./images/bug.png")#导入图片
-IMG_FLAG = QImage("./images/flag.png")
-IMG_START = QImage("./images/rocket.png")
-IMG_CLOCK = QImage("./images/clock-select.png")
+IMG_BOMB = QImage("E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/bug.png")#导入图片,注意用powershell和cmd打开要用绝对路径。注意使用正斜杠
+IMG_FLAG = QImage("E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/flag.png")
+IMG_START = QImage("E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/rocket.png")
+IMG_CLOCK = QImage("E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/clock-select.png")
 
 NUM_COLORS = {
     1: QColor('#f44336'),
@@ -33,10 +33,10 @@ STATUS_FAILED = 2
 STATUS_SUCCESS = 3
 
 STATUS_ICONS = {
-    STATUS_READY: "./images/plus.png",
-    STATUS_PLAYING: "./images/smiley.png",
-    STATUS_FAILED: "./images/cross.png",
-    STATUS_SUCCESS: "./images/smiley-lol.png",
+    STATUS_READY: "E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/plus.png",
+    STATUS_PLAYING: "E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/smiley.png",
+    STATUS_FAILED: "E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/cross.png",
+    STATUS_SUCCESS: "E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/smiley-lol.png",
 }
 
 
@@ -196,7 +196,7 @@ class MainWindow(QMainWindow):#窗口显示
         self.button = QPushButton()#一个按钮，应该是笑脸按钮
         self.button.setFixedSize(QSize(32, 32))
         self.button.setIconSize(QSize(32, 32))
-        self.button.setIcon(QIcon("./images/smiley.png"))
+        self.button.setIcon(QIcon("E:/LearnPython/15-minute-apps-master/15-minute-apps-master/minesweeper/images/smiley.png"))
         self.button.setFlat(True)
 
         self.button.pressed.connect(self.button_pressed)
